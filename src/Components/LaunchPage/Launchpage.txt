@@ -1,0 +1,730 @@
+import React, { useEffect, useState } from 'react';
+import './LaunchPage.css';
+import { useNavigate, Link } from 'react-router-dom';
+import {Modal,FormControl} from 'react-bootstrap';
+import { UserDashBoard } from '../UserDashboard/UserDashboard';
+import avatorimage from '../Images/image1.png';
+import avatorimage2 from '../Images/image2.png';
+export const LaunchPage= (props:any) => {
+    const navigate = useNavigate();
+    const [JsonAdmin,setJsonAdmin]:any=useState([])
+    const [user,setUser]=useState({
+        id:"",
+        name:"",
+        department:"",
+        mailId:"",
+        password:"",
+        role:"",
+        status:"",
+       
+    })
+    const [show,setShow]=useState(false)
+    const [isEdit,setIsEdit]=useState(false)
+    useEffect(()=>
+    {
+        if(props.data.length!==0 && props.role==='Admin')
+        {
+            setJsonAdmin(props.data)
+        }
+    },[])
+    const onDeleteUsers=(id:any)=>
+    {
+        const updatedDataList = JsonAdmin.map((item:any) => {
+            if (item.id === id) {
+              return { ...item,status:"Deleted" };
+            }
+            return item;
+          });
+          setJsonAdmin(updatedDataList)
+    }
+    const onAddUsers=()=>
+    {
+        const updatedDataList=JsonAdmin
+        updatedDataList.push(user)
+        setJsonAdmin(updatedDataList)
+        const userTemp={
+            id:"",
+            name:"",
+            department:"",
+            mailId:"",
+            password:"",
+            role:"",
+            status:"",
+            
+            
+        }
+        setUser(userTemp);
+        setShow(false)
+    }
+    const onEditUsers=(id:string)=>
+    {
+        const updatedDataList = JsonAdmin.map((item:any) => {
+            if (item.id === id) {
+              return { ...item,name:user.name,department:user.department,mailId:user.mailId,status:user.status };
+            }
+            return item;
+          });
+          setJsonAdmin(updatedDataList)
+          const userTemp={
+            id:"",
+            name:"",
+            department:"",
+            mailId:"",
+            password:"",
+            role:"",
+            status:""
+        }
+        setUser(userTemp);
+        setShow(false)
+    }
+    const onClickEdit=(id:any)=>
+    {
+        JsonAdmin.map((n:any)=>
+        {
+            if(n.id===id)
+            {
+                setUser(n)
+            }
+        })
+        setIsEdit(true)
+        setShow(true)
+    }
+    const handleLogout = () => {
+        // Implement your logout logic here
+        // You can clear user session, remove tokens, etc.
+        // Example: localStorage.removeItem('token');
+        // Redirect the user to the login page or perform any other required actions
+        // For simplicity, we'll just reload the page here
+        navigate('/');
+      };
+    return(<>
+    <div className='dash-container'>
+        
+    {props.role==='User'?
+        <div className='dash-navbar'>
+        <span>Kanini </span>
+        <span>User-DashBoard</span>
+        <span>End</span>
+        </div>
+        :props.role==='Admin'?
+        <div className='dash-navbar'>
+        <span>Kanini </span>
+        <span>Admin-DashBoard</span>
+        <span>End</span>
+        </div>:''}
+    <div className='dash-main'>
+    {props.role==='Admin'?
+    <div className='dash-admin-table-container'>
+    <div className='dash-table-heading'>
+        <span></span>
+        <span>User Table</span>
+        <span><button className='btn' onClick={()=>setShow(true)}>Add</button></span>
+       <span>
+        <img src={avatorimage} className="img" alt="avator" width={30} />
+                  <button className='btn-Ad-logout' onClick={handleLogout}>Logout</button>
+                </span>
+    </div>
+    <table className="table">
+<thead>
+<tr>
+  <th scope="col">Name</th>
+  <th scope="col">Department</th>
+  <th scope="col">Mail ID</th>
+  <th scope='col'>Role</th>
+  <th scope="col">Status</th>
+  <th scope='col'>Edit</th>
+  <th scope='col'>Delete</th>
+</tr>
+</thead>
+<tbody>
+{JsonAdmin.map((n:any)=>{
+    return(
+    <tr>
+    <td>{n.name}</td>
+    <td>{n.department}</td>
+    <td>{n.mailId}</td>
+    <td>{n.role}</td>
+    <td>{n.status}</td>
+    {n.role==='Admin'?<></>
+    :<>
+    <td><button className='btn' onClick={()=>onClickEdit(n.id)}>Edit</button></td>
+    <td><button className='btn' onClick={()=>onDeleteUsers(n.id)}>Delete</button></td>
+    </>}
+    </tr>)
+})}
+</tbody>
+</table>
+<Modal show={show}>
+    <Modal.Header>{isEdit?'Edit Form':'Add Form'}
+        <button className='btn' onClick={()=>{setShow(false);setIsEdit(false);const userTemp={
+            id:"",
+            name:"",
+            department:"",
+            mailId:"",
+            password:"",
+            role:"",
+            status:""
+        }
+        setUser(userTemp);}}>Close</button>
+    </Modal.Header>
+    <Modal.Body>
+        <label>ID</label>
+        <FormControl type='text' value={user.id} placeholder='Id' disabled={isEdit?true:false} onChange={(e:any)=>setUser({...user,id:e.target.value})}></FormControl>
+        <br></br>
+        <label>Name</label>
+        <FormControl type='text' value={user.name} placeholder='Name' onChange={(e:any)=>setUser({...user,name:e.target.value})}></FormControl>
+        <br></br>
+        <label>Department</label>
+        <FormControl type='text' value={user.department} placeholder='Department' onChange={(e:any)=>setUser({...user,department:e.target.value})}></FormControl>
+        <br></br>
+        <label>Mail ID</label>
+        <FormControl type='text' value={user.mailId} placeholder='Mail ID' onChange={(e:any)=>setUser({...user,mailId:e.target.value})}></FormControl>
+        <br></br>
+        <label>Password</label>
+        <FormControl type='password' value={user.password} placeholder='Password' disabled={isEdit?true:false} onChange={(e:any)=>setUser({...user,password:e.target.value})}></FormControl>
+        <br></br>
+        <label>Role</label>
+        <FormControl type='text' value={user.role} placeholder='Role' disabled={isEdit?true:false} onChange={(e:any)=>setUser({...user,role:e.target.value})}></FormControl>
+        <br></br>
+        <label>Status</label>
+        <FormControl type='text' value={user.status} placeholder='Status' onChange={(e:any)=>setUser({...user,status:e.target.value})}></FormControl>
+        <br></br>
+    </Modal.Body>
+    <Modal.Footer>
+        <span>{isEdit?
+        <button className='btn btn-primary' onClick={()=>onEditUsers(user.id)}>Edit</button>:
+            <button className='btn btn-primary' onClick={()=>onAddUsers()}>Add</button>
+        }
+        </span>
+    </Modal.Footer>
+</Modal>
+</div>:
+    props.role==='User'?
+    <>
+     <img src={avatorimage2} className="img-user" alt="avator" width={30} />
+     <button className='btn-user-logout' onClick={handleLogout}>Logout</button>
+    <UserDashBoard data={props.data}/>
+    </>
+    :''
+    }
+    </div>
+</div>
+    </>)
+}
+
+-----------------------
+import React, { useEffect, useState } from 'react';
+import './LaunchPage.css';
+import { useNavigate, Link } from 'react-router-dom';
+import {Modal,FormControl} from 'react-bootstrap';
+import { UserDashBoard } from '../UserDashboard/UserDashboard';
+import avatorimage from '../Images/image1.png';
+import avatorimage2 from '../Images/image2.png';
+export const LaunchPage= (props:any) => {
+    const navigate = useNavigate();
+    const [JsonAdmin,setJsonAdmin]:any=useState([])
+    const [user,setUser]=useState({
+        id:"",
+        name:"",
+        department:"",
+        mailId:"",
+        password:"",
+        role:"",
+        status:"",
+       
+    })
+    const [show,setShow]=useState(false)
+    const [isEdit,setIsEdit]=useState(false)
+    useEffect(()=>
+    {
+        if(props.data.length!==0 && props.role==='Admin'|| 'admin')
+        {
+            setJsonAdmin(props.data)
+        }
+    },[])
+    const onClickDeleteUsers=(id:any)=>
+    {
+        const updatedDataList = JsonAdmin.map((item:any) => {
+            if (item.id === id) {
+              return { ...item,status:"Deleted" };
+            }
+            return item;
+          });
+          setJsonAdmin(updatedDataList)
+    }
+    const onClickAddUsers=()=>
+    {
+        const updatedDataList=JsonAdmin
+        updatedDataList.push(user)
+        setJsonAdmin(updatedDataList)
+        const userTemp={
+            id:"",
+            name:"",
+            department:"",
+            mailId:"",
+            password:"",
+            role:"",
+            status:"",
+            
+            
+        }
+        setUser(userTemp);
+        setShow(false)
+    }
+    const onClickEditUsers=(id:string)=>
+    {
+        const updatedDataList = JsonAdmin.map((item:any) => {
+            if (item.id === id) {
+              return { ...item,name:user.name,department:user.department,mailId:user.mailId,status:user.status };
+            }
+            return item;
+          });
+          setJsonAdmin(updatedDataList)
+          const userTemp={
+            id:"",
+            name:"",
+            department:"",
+            mailId:"",
+            password:"",
+            role:"",
+            status:""
+        }
+        setUser(userTemp);
+        setShow(false)
+    }
+    const onClickEdit=(id:any)=>
+    {
+        JsonAdmin.map((n:any)=>
+        {
+            if(n.id===id)
+            {
+                setUser(n)
+            }
+        })
+        setIsEdit(true)
+        setShow(true)
+    }
+    const handleLogout = () => {
+       
+        navigate('/');
+      };
+    return(<>
+    <div className='dash-container'>
+        
+    {props.role==='User'?
+        <div className='dash-navbar'>
+        <span>Kanini </span>
+        <span>User-DashBoard</span>
+        <span>End</span>
+        </div>
+        :props.role==='Admin'?
+        <div className='dash-navbar'>
+        <span>Kanini </span>
+        <span>Admin-DashBoard</span>
+        <span>End</span>
+        </div>:''}
+    <div className='dash-main'>
+    {props.role==='Admin'?
+    <div className='dash-admin-table-container'>
+    <div className='dash-table-heading'>
+        <span></span>
+        <span>User Table</span>
+        <span><button className='btn' onClick={()=>setShow(true)}>Add</button></span>
+       <span>
+        <img src={avatorimage} className="img" alt="avator" width={30} />
+                  <button className='btn-Ad-logout' onClick={handleLogout}>Logout</button>
+                </span>
+    </div>
+    <table className="table">
+<thead>
+<tr>
+  <th scope="col">Name</th>
+  <th scope="col">Department</th>
+  <th scope="col">Mail ID</th>
+  <th scope='col'>Role</th>
+  <th scope="col">Status</th>
+  <th scope='col'>Edit</th>
+  <th scope='col'>Delete</th>
+</tr>
+</thead>
+<tbody>
+{JsonAdmin.map((n:any)=>{
+    return(
+    <tr>
+    <td>{n.name}</td>
+    <td>{n.department}</td>
+    <td>{n.mailId}</td>
+    <td>{n.role}</td>
+    <td>{n.status}</td>
+    {n.role==='Admin'?<></>
+    :<>
+    <td><button className='btn' onClick={()=>onClickEdit(n.id)}>Edit</button></td>
+    <td><button className='btn' onClick={()=>onClickDeleteUsers(n.id)}>Delete</button></td>
+    </>}
+    </tr>)
+})}
+</tbody>
+</table>
+<Modal show={show}>
+    <Modal.Header>{isEdit?'Edit Form':'Add Form'}
+        <button className='btn' onClick={()=>{setShow(false);setIsEdit(false);const userTemp={
+            id:"",
+            name:"",
+            department:"",
+            mailId:"",
+            password:"",
+            role:"",
+            status:""
+        }
+        setUser(userTemp);}}>Close</button>
+    </Modal.Header>
+    <Modal.Body>
+        <label>ID</label>
+        <FormControl type='text' value={user.id} placeholder='Id' disabled={isEdit?true:false} onChange={(e:any)=>setUser({...user,id:e.target.value})}></FormControl>
+        <br></br>
+        <label>Name</label>
+        <FormControl type='text' value={user.name} placeholder='Name' onChange={(e:any)=>setUser({...user,name:e.target.value})}></FormControl>
+        <br></br>
+        <label>Department</label>
+        <FormControl type='text' value={user.department} placeholder='Department' onChange={(e:any)=>setUser({...user,department:e.target.value})}></FormControl>
+        <br></br>
+        <label>Mail ID</label>
+        <FormControl type='text' value={user.mailId} placeholder='Mail ID' onChange={(e:any)=>setUser({...user,mailId:e.target.value})}></FormControl>
+        <br></br>
+        <label>Password</label>
+        <FormControl type='password' value={user.password} placeholder='Password' disabled={isEdit?true:false} onChange={(e:any)=>setUser({...user,password:e.target.value})}></FormControl>
+        <br></br>
+        <label>Role</label>
+        <FormControl type='text' value={user.role} placeholder='Role' disabled={isEdit?true:false} onChange={(e:any)=>setUser({...user,role:e.target.value})}></FormControl>
+        <br></br>
+        <label>Status</label>
+        <FormControl type='text' value={user.status} placeholder='Status' onChange={(e:any)=>setUser({...user,status:e.target.value})}></FormControl>
+        <br></br>
+    </Modal.Body>
+    <Modal.Footer>
+        <span>{isEdit?
+        <button className='btn btn-primary' onClick={()=>onClickEditUsers(user.id)}>Edit</button>:
+            <button className='btn btn-primary' onClick={()=>onClickAddUsers()}>Add</button>
+        }
+        </span>
+    </Modal.Footer>
+</Modal>
+</div>:
+    props.role==='User'?
+    <>
+     <img src={avatorimage2} className="img-user" alt="avator" width={30} />
+     <button className='btn-user-logout' onClick={handleLogout}>Logout</button>
+    <UserDashBoard data={props.data}/>
+    </>
+    :''
+    }
+    </div>
+</div>
+    </>)
+}
+
+-----------------------------
+import React, { useEffect, useState } from 'react';
+import './LaunchPage.css';
+import { useNavigate, Link } from 'react-router-dom';
+import { Modal, FormControl } from 'react-bootstrap';
+import EndUserDashBoard from '../EndUserDashboard/EndUserDashboard';
+import avatorimage from '../Images/image1.png';
+import avatorimage2 from '../Images/image2.png';
+import { v4 as uuidv4 } from 'uuid';
+
+export const LaunchPage = (props: any) => {
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState({
+    id: '', // Leave it empty, as it will be generated automatically
+    name: '',
+    department: '',
+    mailId: '',
+    password: '',
+    role: '',
+    status: '',
+  });
+  const [JsonAdmin, setJsonAdmin]: any = useState([]);
+  const [isEdit, setIsEdit] = useState(false);
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (props.data.length !== 0 && props.role === 'Admin') {
+      setJsonAdmin(props.data);
+    }
+  }, []);
+
+  const onClickDeleteUsers = (id: any) => {
+    const updatedDataList = JsonAdmin.map((item: any) => {
+      if (item.id === id) {
+        return { ...item, status: 'Deleted' };
+      }
+      return item;
+    });
+    setJsonAdmin(updatedDataList);
+  };
+
+  const onClickAddUsers = () => {
+    // Generate a unique ID using uuid
+    const userId = uuidv4();
+
+    // Create a new user object with the generated ID
+    const newUser = {
+      id: userId,
+      name: user.name,
+      department: user.department,
+      mailId: user.mailId,
+      password: user.password,
+      role: user.role,
+      status: user.status,
+    };
+
+    // Update the JsonAdmin array with the new user
+    const updatedDataList = [...JsonAdmin, newUser];
+    setJsonAdmin(updatedDataList);
+
+    // Reset the user state
+    const userTemp = {
+      id: '', // Leave it empty, as it will be generated automatically
+      name: '',
+      department: '',
+      mailId: '',
+      password: '',
+      role: '',
+      status: '',
+    };
+    setUser(userTemp);
+    setShow(false);
+  };
+
+  const onClickEditUsers = (id: string) => {
+    const updatedDataList = JsonAdmin.map((item: any) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          name: user.name,
+          department: user.department,
+          mailId: user.mailId,
+          status: user.status,
+        };
+      }
+      return item;
+    });
+    setJsonAdmin(updatedDataList);
+
+    const userTemp = {
+      id: '', // Leave it empty, as it will be generated automatically
+      name: '',
+      department: '',
+      mailId: '',
+      password: '',
+      role: '',
+      status: '',
+    };
+    setUser(userTemp);
+    setShow(false);
+  };
+
+  const handleLogout = () => {
+    navigate('/');
+  };
+
+  const onClickEdit = (id: any) => {
+    JsonAdmin.map((n: any) => {
+      if (n.id === id) {
+        setUser(n);
+      }
+    });
+    setIsEdit(true);
+    setShow(true);
+  };
+
+  return (
+    <>
+      <div className="dash-container">
+        {props.role === 'User' ? (
+          <div className="dash-navbar">
+            <span>Sample </span>
+            <span>User-DashBoard</span>
+            <span>End</span>
+          </div>
+        ) : props.role === 'Admin' ? (
+          <div className="dash-navbar">
+            <span> Sample</span>
+            <span>Admin-DashBoard</span>
+            <span>End</span>
+          </div>
+        ) : (
+          ''
+        )}
+        <div className="dash-main">
+          {props.role === 'Admin' ? (
+            <div className="dash-admin-table-container">
+              <div className="dash-table-heading">
+                <span></span>
+                <span>User Table</span>
+                <span>
+                  <button className="btn" onClick={() => setShow(true)}>
+                    New
+                  </button>
+                </span>
+                <span>
+                  <img src={avatorimage} className="img" alt="avator" width={30} />
+                  <button className="btn-Ad-logout" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </span>
+              </div>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Mail ID</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {JsonAdmin.map((n: any) => {
+                    return (
+                      <tr key={n.id}>
+                        <td>{n.name}</td>
+                        <td>{n.department}</td>
+                        <td>{n.mailId}</td>
+                        <td>{n.role}</td>
+                        <td>{n.status}</td>
+                        {n.role === 'Admin' ? (
+                          <></>
+                        ) : (
+                          <>
+                            <td>
+                              <button className="btn" onClick={() => onClickEdit(n.id)}>
+                                Edit user
+                              </button>
+                            </td>
+                            <td>
+                              <button className="btn" onClick={() => onClickDeleteUsers(n.id)}>
+                                Delete user
+                              </button>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <Modal show={show}>
+                <div className="custom-modal">
+                  <button className="close-btn" onClick={() => setShow(false)}>
+                    Close
+                  </button>
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h3>{isEdit ? 'Edit User' : 'Add User'}</h3>
+                    </div>
+                    <div className="modal-body">
+                      <div className="form-group">
+                        <label>ID</label>
+                        <FormControl
+                          type="text"
+                          value={user.id}
+                          placeholder="ID"
+                          onChange={(e) => setUser({ ...user, id: e.target.value })}
+                          disabled={isEdit ? true : false}
+                        ></FormControl>
+                      </div>
+                      <div className="form-group">
+                        <label>Name</label>
+                        <FormControl
+                          type="text"
+                          value={user.name}
+                          placeholder="Name"
+                          onChange={(e) => setUser({ ...user, name: e.target.value })}
+                        ></FormControl>
+                      </div>
+                      <div className="form-group">
+                        <label>Department</label>
+                        <FormControl
+                          type="text"
+                          value={user.department}
+                          placeholder="Department"
+                          onChange={(e) => setUser({ ...user, department: e.target.value })}
+                        ></FormControl>
+                      </div>
+                      <div className="form-group">
+                        <label>Email ID</label>
+                        <FormControl
+                          type="text"
+                          value={user.mailId}
+                          placeholder="Email ID"
+                          onChange={(e) => setUser({ ...user, mailId: e.target.value })}
+                        ></FormControl>
+                      </div>
+                      <div className="form-group">
+                        <label>Password</label>
+                        <FormControl
+                          type="password"
+                          value={user.password}
+                          placeholder="Password"
+                          disabled={isEdit ? true : false}
+                          onChange={(e) => setUser({ ...user, password: e.target.value })}
+                        ></FormControl>
+                      </div>
+                      <div className="form-group">
+                        <label>Role</label>
+                        <FormControl
+                          type="text"
+                          value={user.role}
+                          placeholder="Role"
+                          disabled={isEdit ? true : false}
+                          onChange={(e) => setUser({ ...user, role: e.target.value })}
+                        ></FormControl>
+                      </div>
+                      <div className="form-group">
+                        <label>Status</label>
+                        <FormControl
+                          type="text"
+                          value={user.status}
+                          placeholder="Status"
+                          onChange={(e) => setUser({ ...user, status: e.target.value })}
+                        ></FormControl>
+                      </div>
+                    </div>
+                    <div className="modal-footer">
+                      <span>
+                        {isEdit ? (
+                          <button className="btn btn-primary" onClick={() => onClickEditUsers(user.id)}>
+                            Edit
+                          </button>
+                        ) : (
+                          <button className="btn btn-primary" onClick={() => onClickAddUsers()}>
+                            Add
+                          </button>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Modal>
+            </div>
+          ) : props.role === 'User' ? (
+            <>
+              <img src={avatorimage2} className="img-user" alt="avator" width={30} />
+              <button className="btn-user-logout" onClick={handleLogout}>
+                Logout
+              </button>
+              <EndUserDashBoard data={props.data} />
+            </>
+          ) : (
+            ''
+          )}
+        </div>
+      </div>
+    </>
+  );
+};

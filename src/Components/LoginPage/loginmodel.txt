@@ -1,0 +1,603 @@
+
+------------------------------------
+
+import React, { useState, ChangeEvent, FormEvent } from 'react';
+import './loginpage.css';
+import Json from './users.json';
+import { useNavigate } from 'react-router-dom';
+
+interface LoginPageProps {
+  role: (role: string, data: any) => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ role }) => {
+  const [formData, setFormData] = useState({
+    showLogin: true,
+    email: '',
+    password: '',
+    name: '',
+  });
+  const navigate = useNavigate();
+
+  const toggleForm = () => {
+    setFormData((prevState) => ({
+      ...prevState,
+      showLogin: !prevState.showLogin,
+      email: '',
+      password: '',
+      name: '',
+    }));
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleLoginSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { email, password } = formData;
+    const user = Json.find((n) => n.mailId === email && n.password === password);
+
+    if (user) {
+      if (user.role === 'Admin') {
+        role(user.role, Json);
+        navigate('/landingPage');
+      } else {
+        const departmentsCount: Record<string, number> = {};
+        const rolesCount: Record<string, number> = {};
+
+        Json.forEach((user) => {
+          const { department, role } = user;
+          departmentsCount[department] = (departmentsCount[department] || 0) + 1;
+          rolesCount[role] = (rolesCount[role] || 0) + 1;
+        });
+
+        role(user.role, [departmentsCount, rolesCount]);
+        navigate('/landingPage');
+      }
+    }
+  };
+
+  const handleSignupSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { name, email, password } = formData;
+    // Add your signup logic here
+    console.log('Signup Name:', name);
+    console.log('Signup Email:', email);
+    console.log('Signup Password:', password);
+
+    setFormData({
+      ...formData,
+      name: '',
+      email: '',
+      password: '',
+    });
+  };
+
+  const { showLogin, email, password, name } = formData;
+
+  return (
+    <div className='container-body'>
+      <div className='container'>
+        <h2>{showLogin ? 'Login' : 'Signup'}</h2>
+        <form onSubmit={showLogin ? handleLoginSubmit : handleSignupSubmit}>
+          {!showLogin && (
+            <div className='form-group'>
+              <label htmlFor='name'>Name</label>
+              <input
+                type='text'
+                id='name'
+                name='name'
+                value={name}
+                onChange={handleInputChange}
+                placeholder='Name'
+                required
+              />
+            </div>
+          )}
+          <div className='form-group'>
+            <label htmlFor='email'>Email</label>
+            <input
+              type='email'
+              id='email'
+              name='email'
+              value={email}
+              onChange={handleInputChange}
+              placeholder='Email'
+              required
+            />
+          </div>
+          <div className='form-group'>
+            <label htmlFor='password'>Password</label>
+            <input
+              type='password'
+              id='password'
+              name='password'
+              value={password}
+              onChange={handleInputChange}
+              placeholder='Password'
+              required
+            />
+          </div>
+          <div className='button-container'>
+            <button type='submit' className='submit-button'>
+              {showLogin ? 'Login' : 'Signup'}
+            </button>
+            <button type='button' onClick={toggleForm} className='toggle-button'>
+              {showLogin ? 'Switch to Signup' : 'Switch to Login'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
+---------------------------------
+import React, { useState, ChangeEvent, FormEvent } from 'react';
+import './loginpage.css';
+import Json from './users.json';
+import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid'; // Import uuid
+
+interface LoginPageProps {
+  role: (role: string, data: any) => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ role }) => {
+  const [formData, setFormData] = useState({
+    showLogin: true,
+    email: '',
+    password: '',
+    name: '',
+  });
+  const navigate = useNavigate();
+
+  const toggleForm = () => {
+    setFormData((prevState) => ({
+      ...prevState,
+      showLogin: !prevState.showLogin,
+      email: '',
+      password: '',
+      name: '',
+    }));
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleLoginSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { email, password } = formData;
+    const user = Json.find((n) => n.mailId === email && n.password === password);
+
+    if (user) {
+      if (user.role === 'Admin') {
+        role(user.role, Json);
+        navigate('/landingPage');
+      } else {
+        const departmentsCount: Record<string, number> = {};
+        const rolesCount: Record<string, number> = {};
+
+        Json.forEach((user) => {
+          const { department, role } = user;
+          departmentsCount[department] = (departmentsCount[department] || 0) + 1;
+          rolesCount[role] = (rolesCount[role] || 0) + 1;
+        });
+
+        role(user.role, [departmentsCount, rolesCount]);
+        navigate('/landingPage');
+      }
+    }
+  };
+
+  const handleSignupSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { name, email, password } = formData;
+
+    // Generate a unique ID for the new user using uuid
+    const newUser = {
+      id: uuidv4(), // Generate a unique ID
+      name: name,
+      department: 'HR', // Set the department as needed
+      mailId: email,
+      password: password,
+      role: 'User', // Set the user role as needed
+      status: 'Active', // Set the status as needed
+    };
+    
+
+    // Update the user data in your JSON file or wherever you are storing user data
+    // For example, if you are using an array to store users, you can push the new user:
+    // Json.push(newUser);
+
+    // After updating the user data, you can navigate the user to the landing page
+    role(newUser.role, Json);
+    navigate('/landingPage');
+
+    setFormData({
+      ...formData,
+      name: '',
+      email: '',
+      password: '',
+    });
+
+    // Now you have the newUser object with a unique ID ready for your signup logic
+    console.log('New User:', newUser);
+  };
+
+  const { showLogin, email, password, name } = formData;
+
+  return (
+    <div className='container-body'>
+      <div className='container'>
+        <h2>{showLogin ? 'Login' : 'Signup'}</h2>
+        <form onSubmit={showLogin ? handleLoginSubmit : handleSignupSubmit}>
+          {!showLogin && (
+            <div className='form-group'>
+              <label htmlFor='name'>Name</label>
+              <input
+                type='text'
+                id='name'
+                name='name'
+                value={name}
+                onChange={handleInputChange}
+                placeholder='Name'
+                required
+              />
+            </div>
+          )}
+          <div className='form-group'>
+            <label htmlFor='email'>Email</label>
+            <input
+              type='email'
+              id='email'
+              name='email'
+              value={email}
+              onChange={handleInputChange}
+              placeholder='Email'
+              required
+            />
+          </div>
+          <div className='form-group'>
+            <label htmlFor='password'>Password</label>
+            <input
+              type='password'
+              id='password'
+              name='password'
+              value={password}
+              onChange={handleInputChange}
+              placeholder='Password'
+              required
+            />
+          </div>
+          <div className='button-container'>
+            <button type='submit' className='submit-button'>
+              {showLogin ? 'Login' : 'Signup'}
+            </button>
+            <button type='button' onClick={toggleForm} className='toggle-button'>
+              {showLogin ? 'Switch to Signup' : 'Switch to Login'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
+-------------------------
+import React, { useState } from 'react';
+import './loginpage.css';
+import Json from './users.json'
+import {useNavigate} from 'react-router-dom'
+const LoginPage= (props:any) => {
+  const [showLogin, setShowLogin] = useState<boolean>(true);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const navigate=useNavigate()
+  const toggleForm = () => {
+    setShowLogin(!showLogin);
+    setEmail('');
+    setPassword('');
+    setName('');
+  };
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+
+  const handleLoginSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Add your login logic here
+    console.log('Login Email:', email);
+    console.log('Login Password:', password);
+    console.log(Json);
+    Json.map((n)=>
+    {
+        if(n.mailId===email && n.password===password)
+        {
+          if(n.role==='Admin')
+          {
+            props.role(n.role,Json)
+            navigate('/landingPage') 
+          }
+          else
+          {
+            const departmentsCount:any={}
+            const rolesCount:any={}
+            Json.forEach((users:any)=>
+            {
+              const {department}=users
+              
+              if(departmentsCount[department])
+              {
+                departmentsCount[department]++;
+              }
+              else
+              {
+                departmentsCount[department]=1
+              }
+              const {role}=users
+              if(rolesCount[role])
+              {
+                rolesCount[role]++;
+              }
+              else
+              {
+                rolesCount[role]=1
+              }
+            })
+            props.role(n.role,[departmentsCount,rolesCount])
+            navigate('/landingPage') 
+
+          }
+        }
+    })
+  };
+
+  const handleSignupSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // Add your signup logic here
+    console.log('Signup Name:', name);
+    console.log('Signup Email:', email);
+    console.log('Signup Password:', password);
+    setName('');
+    setEmail('');
+    setPassword('');
+  };
+
+  return (
+    <div className='container-body'>
+    <div className="container">
+      <h2>{showLogin ? 'Login' : 'Signup'}</h2>
+      <form onSubmit={showLogin ? handleLoginSubmit : handleSignupSubmit}>
+        {!showLogin && (
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={handleNameChange}
+              placeholder="Name"
+              required
+            />
+          </div>
+        )}
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={handleEmailChange}
+            placeholder="Email"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={handlePasswordChange}
+            placeholder="Password"
+            required
+          />
+        </div>
+        <div className="button-container">
+          <button type="submit" className="submit-button">
+            {showLogin ? 'Login' : 'Signup'}
+          </button>
+          <button type="button" onClick={toggleForm} className="toggle-button">
+            {showLogin ? 'Switch to Signup' : 'Switch to Login'}
+          </button>
+        </div>
+      </form>
+    </div>
+    </div>
+  );
+};
+
+export default LoginPage;
+
+
+---------------
+
+using axios---------------------------------
+import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import './loginpage.css';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+interface LoginPageProps {
+  role: (role: string, data: any) => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ role }) => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    showLogin: true,
+    email: '',
+    password: '',
+    name: '',
+  });
+
+  const toggleForm = () => {
+    setFormData((prevState) => ({
+      ...prevState,
+      showLogin: !prevState.showLogin,
+      email: '',
+      password: '',
+    }));
+  };
+
+  const handleChangeInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handlingLoginAction = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { email, password } = formData;
+    
+    try {
+      const response = await axios.get('/api/userData'); // Replace with your actual API endpoint
+      const users = response.data;
+      
+      const user = users.find((n: any) => n.EmailId === email && n.password === password);
+
+      if (user) {
+        if (user.role === 'Admin' || user.role.toLowerCase() === 'admin') {
+          role(user.role, users);
+          navigate('/LaunchPage');
+        } else {
+          const departmentsCount: Record<string, number> = {};
+          const rolesCount: Record<string, number> = {};
+
+          users.forEach((user: any) => {
+            const { department, role } = user;
+            departmentsCount[department] = (departmentsCount[department] || 0) + 1;
+            rolesCount[role] = (rolesCount[role] || 0) + 1;
+          });
+
+          role(user.role, [departmentsCount, rolesCount]);
+          navigate('/LaunchPage');
+        }
+      }
+    } catch (error) {
+      console.error('Error while fetching user data:', error);
+    }
+  };
+
+  const handlingSignupAction = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { name, email, password } = formData;
+
+    try {
+      const newUser = {
+        name: name,
+        department: 'IT', // You can customize this
+        EmailId: email,
+        password: password,
+        role: 'User',
+        status: 'Active', // You can customize this
+      };
+
+      await axios.post('/api/signup', newUser); // Replace with your actual API endpoint
+      navigate('/LaunchPage');
+    } catch (error) {
+      console.error('Error while signing up:', error);
+    }
+  };
+
+  const { showLogin, email, password, name } = formData;
+
+  return (
+    <>
+      <div className="navbar">
+        <header className="header">
+          <h3>DEVELOPER TASK</h3>
+        </header>
+      </div>
+      <div className='container-body'>
+        <div className='container'>
+          <h2>{showLogin ? 'Login' : 'Signup'}</h2>
+          <form onSubmit={showLogin ? handlingLoginAction : handlingSignupAction}>
+            {!showLogin && (
+              <div className='form-group'>
+                <label htmlFor='name'>Name</label>
+                <input
+                  type='text'
+                  id='name'
+                  name='name'
+                  value={name}
+                  onChange={handleChangeInput}
+                  placeholder='Name'
+                  required
+                />
+              </div>
+            )}
+            <div className='form-group'>
+              <label htmlFor='email'>Email</label>
+              <input
+                type='email'
+                id='email'
+                name='email'
+                value={email}
+                onChange={handleChangeInput}
+                placeholder='Email'
+                required
+              />
+            </div>
+            <div className='form-group'>
+              <label htmlFor='password'>Password</label>
+              <input
+                type='password'
+                id='password'
+                name='password'
+                value={password}
+                onChange={handleChangeInput}
+                placeholder='Password'
+                required
+              />
+            </div>
+            <div className='button-container'>
+              <button type='submit' className='submit-button'>
+                {showLogin ? 'Login' : 'Signup'}
+              </button>
+              <button type='button' onClick={toggleForm} className='toggle-button'>
+                {showLogin ? 'Switch to Signup' : 'Switch to Login'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default LoginPage;
